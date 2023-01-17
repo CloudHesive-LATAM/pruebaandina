@@ -1,0 +1,36 @@
+[
+    {
+         "ParameterKey": "VPCID",
+         "ParameterValue": "vpc-07fcbaf78eedc25ad"
+     },
+     {
+         "ParameterKey": "ProjectName", 
+         "ParameterValue": "Forecast"
+     },
+     {
+         "ParameterKey": "RetentionInDays", 
+         "ParameterValue": "120"
+     },
+     {
+         "ParameterKey": "BucketNameData",
+         "ParameterValue": "ch-969434823882-data-qa"
+     },
+     {
+         "ParameterKey": "BucketNameProcessed",
+         "ParameterValue": "ch-969434823882-processed-qa"
+     },
+  
+     {
+          "ParameterKey": "SubnetID1",
+          "ParameterValue": "subnet-066cded240b3a7314"
+     },
+     {
+           "ParameterKey": "BucketNameLogging",
+           "ParameterValue": "koandina-969434823882-logs-qa"
+     }, 
+     {
+           "ParameterKey": "Environment",
+           "ParameterValue": "qa"
+     }
+  ]
+  

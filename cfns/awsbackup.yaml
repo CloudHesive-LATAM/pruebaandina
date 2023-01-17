@@ -1,0 +1,208 @@
+#### TEMPLATE FORMAT VERSION #####################################################
+AWSTemplateFormatVersion: '2010-09-09'
+##################################################################################
+
+#### DESCRIPTION #################################################################
+Description: Template para crear AWS Backup en las cuentas
+##################################################################################
+
+#### PARAMETERS ##################################################################
+Parameters:
+  
+  BackupVaultName:
+    Type: String
+    Default: "BackupVault"
+  
+  # AWSBackupEncriptionKeyARNString:
+  #   Type: String
+      
+  ScheduleExpressionSemanal:
+    Type: String
+    Default: "cron(0 5 ? * 7 *)"
+  
+  StartWindowMinutes:
+    Type: Number
+    Default: 65
+  
+  CompletionWindowMinutes:
+    Type: Number
+    Default: 120
+ 
+  DeleteAfterDaysSemanalGold:
+    Type: Number
+    Default: 35
+
+  Proyecto:
+     Type: String
+     Default: 'Forecast'
+  
+             
+################################################################################  
+
+Resources:
+  CloudFormationTestBackupVault:
+    Type: "AWS::Backup::BackupVault"
+    Properties:
+      BackupVaultName: !Ref BackupVaultName
+      #EncryptionKeyArn: !Ref AWSBackupEncriptionKeyARNString
+      BackupVaultTags:
+        Proyecto : !Ref Proyecto
+     
+  BackupPlanGold:
+    Type: "AWS::Backup::BackupPlan"
+    Properties:
+      BackupPlan:
+        BackupPlanName: Gold
+        BackupPlanRule:
+          
+          - RuleName: BkpSemanalG
+            TargetBackupVault: !Ref BackupVaultName
+            ScheduleExpression: !Ref ScheduleExpressionSemanal
+            StartWindowMinutes: !Ref StartWindowMinutes
+            CompletionWindowMinutes: !Ref CompletionWindowMinutes
+            Lifecycle:
+              DeleteAfterDays: !Ref DeleteAfterDaysSemanalGold
+      BackupPlanTags:
+        Proyecto : !Ref Proyecto
+          
+    DependsOn: CloudFormationTestBackupVault
+
+  RoleBKP:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "backup.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: 's3-backup-policy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Sid: S3BucketBackupPermissions
+              Action:
+              - s3:GetInventoryConfiguration
+              - s3:PutInventoryConfiguration
+              - s3:ListBucketVersions
+              - s3:ListBucket
+              - s3:GetBucketVersioning
+              - s3:GetBucketNotification
+              - s3:PutBucketNotification
+              - s3:GetBucketLocation
+              Effect: Allow
+              Resource:
+              - arn:aws:s3:::*
+            - Sid: S3ObjectBackupPermissions
+              Action:
+              - s3:GetObjectAcl
+              - s3:GetObject
+              - s3:GetObjectVersionTagging
+              - s3:GetObjectVersionAcl
+              - s3:GetObjectTagging
+              - s3:GetObjectVersion
+              Effect: Allow
+              Resource:
+              - arn:aws:s3:::*/*
+            - Sid: S3GlobalPermissions
+              Action:
+              - s3:ListAllMyBuckets
+              Effect: Allow
+              Resource:
+              - "arn:aws:s3:::*"
+            - Sid: KMSBackupPermissions
+              Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              Effect: Allow
+              Resource: "arn:aws:s3:::*"
+              Condition:
+                StringLike:
+                  kms:ViaService: s3.*.amazonaws.com
+            - Sid: EventsPermissions
+              Action:
+              - events:DescribeRule
+              - events:EnableRule
+              - events:PutRule
+              - events:DeleteRule
+              - events:PutTargets
+              - events:RemoveTargets
+              - events:ListTargetsByRule
+              - events:DisableRule
+              Effect: Allow
+              Resource: arn:aws:events:*:*:rule/AwsBackupManagedRule*
+            - Sid: EventsMetricsGlobalPermissions
+              Action:
+              - cloudwatch:GetMetricData
+              - events:ListRules
+              Effect: Allow
+              Resource: 
+              - arn:aws:events:::*
+              - arn:aws:cloudwatch:::*
+              - arn:aws:s3:::*
+              - arn:aws:backup:::*
+        - PolicyName: 's3-restore-policy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Sid: S3BucketRestorePermissions
+              Action:
+              - s3:CreateBucket
+              - s3:ListBucketVersions
+              - s3:ListBucket
+              - s3:GetBucketVersioning
+              - s3:GetBucketLocation
+              - s3:PutBucketVersioning
+              Effect: Allow
+              Resource:
+              - arn:aws:s3:::*
+            - Sid: S3ObjectRestorePermissions
+              Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+              - s3:DeleteObject
+              - s3:PutObjectVersionAcl
+              - s3:GetObjectVersionAcl
+              - s3:GetObjectTagging
+              - s3:PutObjectTagging
+              - s3:GetObjectAcl
+              - s3:PutObjectAcl
+              - s3:PutObject
+              - s3:ListMultipartUploadParts
+              Effect: Allow
+              Resource:
+              - arn:aws:s3:::*/*
+            - Sid: S3KMSPermissions
+              Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:GenerateDataKey
+              Effect: Allow
+              Resource: "arn:aws:s3:::*"
+              Condition:
+                StringLike:
+                  kms:ViaService: s3.*.amazonaws.com
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+  BackupSelectionGold:
+    Type: 'AWS::Backup::BackupSelection'
+    Properties:
+      BackupPlanId: !Ref BackupPlanGold
+      BackupSelection:
+        SelectionName: "Recursos_Gold"
+        IamRoleArn: !GetAtt RoleBKP.Arn
+        ListOfTags:
+          - ConditionType: STRINGEQUALS
+            ConditionKey: backup
+            ConditionValue: gold
+        Resources:
+          - 'arn:aws:s3:::*'
+        Conditions:
+          StringEquals:
+            - ConditionKey: 'aws:ResourceTag/backup'
+              ConditionValue: gold
+  

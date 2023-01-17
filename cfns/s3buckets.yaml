@@ -1,0 +1,250 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template for s3 bucket for CCandina Forecast Project
+#### PARAMETERS ##################################################################
+Parameters:
+  
+  #### PARAMETERS > TAGS ##########################################################
+  ProjectName:
+    Type: String
+    Description: 'Nombre del Proyectoo'
+  
+  #### PARAMETERS > ARN KMS S3 SSE DATA ###########################################################
+  # ArnKeyDataBucket: 
+  #   Type: String
+  #   Description: 'ARN de la llave para encriptar el contenido del Bucket para Data'
+  
+  #### PARAMETERS > ARN KMS S3 SSE PROCESSED #########################################################
+  # ArnKeyProcessedBucket: 
+  #   Type: String
+  #   Description: 'ARN de la llave para encriptar el contenido del Bucket para procesamiento'
+  
+  #### PARAMETERS > BUCKET DATA NAME ##########################################################
+  BucketNameData:
+    Type: String
+    Description: 'Nombre del bucket de datos'
+  ################################################################################
+
+  #### PARAMETERS > BUCKET PROCESSED NAME #########################################################
+  BucketNameProcessed:
+    Type: String
+    Description: 'Nombre del bucket de procesamiento'
+  ################################################################################
+
+  #### PARAMETERS > BUCKET LOGGING NAME ###########################################################
+  BucketNameLogging:
+    Type: String
+    Description: 'Nombre del bucket de Logging'
+  ################################################################################ 
+
+  #### PARAMETERS > VPC ID #########################################################
+  VPCID:
+    Type: String
+    Description: 'VPC ID -  Environment'
+  ################################################################################  
+
+  #### PARAMETERS > VPC Endpoint #########################################################
+  # VPCEndpoint:
+  #   Type: String
+  #   Description: 'VPC Endpoint ID'
+  ################################################################################ 
+
+  #### PARAMETERS > GitHub Action user #########################################################
+  # ARNGitHubAction:
+  #   Type: String
+  #   Description: 'ARN del usuario de Github Actions'
+  ################################################################################
+
+  #### PARAMETERS > Environment #########################################################
+  Environment:
+    Type: String
+    Description: 'Environment (Develop, QA, Production)'
+  ################################################################################
+
+
+
+Resources:
+
+  S3BucketProcessed:
+    DeletionPolicy: Retain
+    Type: "AWS::S3::Bucket"
+    Description: Creating Amazon S3 bucket from CloudFormation
+    Properties:
+      BucketName: !Ref BucketNameProcessed
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucket
+        LogFilePrefix: forecast-processed-logs
+      Tags:
+        - Key: Proyecto
+          Value: !Ref ProjectName
+    DependsOn: LoggingBucket
+
+  LoggingBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref BucketNameLogging 
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      AccessControl: LogDeliveryWrite
+      VersioningConfiguration:
+        Status: Enabled     
+  
+ 
+  # BucketPolicy:
+  #   Type: "AWS::S3::BucketPolicy"
+  #   Properties:
+  #     Bucket: !Sub 'koandina-${AWS::AccountId}-processed-${Environment}'
+  #     PolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+
+  #         - Sid: AllowSSLRequestsOnly
+  #           Action: "*"
+  #           Effect: Deny
+  #           Resource: "*" 
+  #           #- !Sub arn:aws:s3:::${S3BucketProcessed} 
+  #           # - !Sub arn:aws:s3:::${S3BucketProcessed}/*
+  #           Condition:
+  #             Bool:
+  #               aws:SecureTransport: 'false'
+  #           Principal: "*"
+          
+  #         - Sid: DenyDeleteBucket
+  #           Action: s3:DeleteBucket
+  #           Effect: Deny
+  #           NotPrincipal: 
+  #            AWS: 
+  #             - !Ref ARNGitHubAction
+  #           Resource: 
+  #           - !Sub arn:aws:s3:::${S3BucketProcessed}
+  #           - !Sub arn:aws:s3:::${S3BucketProcessed}/*
+        
+
+  BucketPolicyLoggingBucket:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref BucketNameLogging
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+
+          - Sid: AllowSSLRequestsOnly
+            Action: "*"
+            Effect: Deny
+            Resource: 
+            #- !Sub arn:aws:s3:::${LoggingBucket}
+            - !Sub arn:aws:s3:::${LoggingBucket}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: 'false'
+            Principal: 
+             AWS: "*"
+                
+  BucketPolicyProcessedBucket:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref S3BucketProcessed
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+
+          - Sid: AllowSSLRequestsOnly
+            Action: "*"
+            Effect: Deny
+            Resource: 
+            #- !Sub arn:aws:s3:::${LoggingBucket}
+            - !Sub arn:aws:s3:::${S3BucketProcessed}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: 'false'
+            Principal: 
+             AWS: "*"       
+
+  # BucketPolicyData:
+  #   Type: "AWS::S3::BucketPolicy"
+  #   Properties:
+  #     Bucket: !Ref S3BucketData
+  #     PolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+          
+  #         # - Sid: AllowGitHubActions
+  #         #   Action: s3:*
+  #         #   Effect: Allow
+  #         #   Resource: 
+  #         #   - !Sub arn:aws:s3:::${S3BucketData}
+  #         #   - !Sub arn:aws:s3:::${S3BucketData}/*
+  #         #   Condition:
+  #         #     StringNotEquals:
+  #         #       aws:userId: !Ref ARNGitHubAction
+  #         #   Principal: "*" 
+          
+  #         - Sid: AllowSSLRequestsOnly
+  #           Action: s3:*
+  #           Effect: Deny
+  #           Resource: 
+  #           - !Sub arn:aws:s3:::${S3BucketData} 
+  #           - !Sub arn:aws:s3:::${S3BucketData}/*
+  #           Condition:
+  #             Bool:
+  #               aws:SecureTransport: 'false'
+  #           Principal: "*"
+          
+  #         - Sid: DenyDeleteBucket
+  #           Action: s3:DeleteBucket
+  #           Effect: Deny
+  #           Resource: 
+  #           - !Sub arn:aws:s3:::${S3BucketData}
+  #           - !Sub arn:aws:s3:::${S3BucketData}/*
+  #           NotPrincipal: 
+  #            AWS: 
+  #             - !Ref ARNGitHubAction
+          
+          # - Sid: Access-to-specific-VPC-only
+          #   NotPrincipal: 
+          #    AWS: 
+          #     - !Ref ARNGitHubAction
+          #   Action: s3:*
+          #   Effect: Deny
+          #   Resource:
+          #   - !Sub arn:aws:s3:::${S3BucketData}
+          #   - !Sub arn:aws:s3:::${S3BucketData}/* 
+          #   Condition:
+          #     StringNotEquals:
+          #       aws:SourceVpc: !Ref VPCID         
+          
+          # - Sid: Access-to-specific-VPCE-only
+          #   NotPrincipal: 
+          #    AWS: 
+          #     - !Ref ARNGitHubAction
+          #   Action: s3:*
+          #   Effect: Deny
+          #   Resource:
+          #   - !Sub arn:aws:s3:::${S3BucketData}
+          #   - !Sub arn:aws:s3:::${S3BucketData}/* 
+          #   Condition:
+          #     StringNotEquals: 
+          #       aws:SourceVpce: !Ref VPCEndpoint
+
+
+
+Outputs:
+  # S3BucketData:
+  #   Description: Bucket Created using this template 
+  #   Value: !Ref S3BucketData
+  S3BucketProcessed:
+    Description: Bucket Created using this template 
+    Value: !Ref S3BucketProcessed
+
+
+#export AWS_PROFILE=ccandina && export AWS_REGION=us-east-2 && aws cloudformation validate-template --template-body file://create_bucket_raw.yml
