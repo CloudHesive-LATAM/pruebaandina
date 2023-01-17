@@ -21,7 +21,7 @@ Parameters:
   #### PARAMETERS > BUCKET DATA NAME ##########################################################
   BucketNameData:
     Type: String
-    Description: 'Nombre del bucket de datos'
+    Description: 'Nombre del bucket de datoss'
   ################################################################################
 
   #### PARAMETERS > BUCKET PROCESSED NAME #########################################################
