@@ -22,7 +22,7 @@ Parameters:
   
   StartWindowMinutes:
     Type: Number
-    Default: 60
+    Default: 65
   
   CompletionWindowMinutes:
     Type: Number

@@ -6,7 +6,7 @@ Parameters:
   RetentionInDays:
     Description: 'Specifies the number of days you want to retain log events.'
     Type: Number
-    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 1827, 3653]
   
   VPCID:
     Description: ID of the VPC (for example, vpc-0343606e).
