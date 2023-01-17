@@ -71,7 +71,7 @@ jobs:
         aws-region: us-east-1
 
     - name: Deploy Infraestructure - VPC Flow logs
-      if: steps.filter.outputs.vpcflowlogs == 'true'
+      # if: steps.filter.outputs.vpcflowlogs == 'true'
       run: |
        dst_branch=${GITHUB_REF_NAME}
        echo $dst_branch
@@ -86,7 +86,7 @@ jobs:
     #     --template-file cfns/poweruser-policy.yaml --capabilities CAPABILITY_NAMED_IAM
 
     - name: Deploy Infraestructure - S3 Buckets
-      if: steps.filter.outputs.s3buckets == 'true'
+      # if: steps.filter.outputs.s3buckets == 'true'
       run: |
        dst_branch=${GITHUB_REF_NAME}
        
@@ -103,7 +103,7 @@ jobs:
     #     --template-file cfns/sagemaker-instance.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
     - name: Deploy Infraestructure - SNS Topic 
-      if: steps.filter.outputs.sns-alarms == 'true'
+      # if: steps.filter.outputs.sns-alarms == 'true'
       run: |
        dst_branch=${GITHUB_REF_NAME}
   
@@ -113,7 +113,7 @@ jobs:
 
     - name: Deploy Infraestructure - AWS Backup
       
-      if: steps.filter.outputs.awsbackup == 'true'
+      # if: steps.filter.outputs.awsbackup == 'true'
       run: |
        dst_branch=${GITHUB_REF_NAME}
 
