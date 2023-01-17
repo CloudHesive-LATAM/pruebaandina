@@ -42,7 +42,7 @@ jobs:
     - uses: dorny/paths-filter@v2
       id: filter
       with:
-        base: develop
+        base: ${{ needs.setup-stage.outputs.env-name }}
         filters: |
           awsbackup:
             - 'cfns/awsbackup.yaml'
