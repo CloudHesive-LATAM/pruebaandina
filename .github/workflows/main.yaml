@@ -23,7 +23,7 @@ jobs:
       - name: Setup Environment Name
         id: env-name
         #run: echo "::set-output name=env::${{ github.ref_name }}"
-        run: echo "name=env"::${{ github.ref_name }} 
+        run: echo "name=env"::${{ github.ref_name }} >> $GITHUB_OUTPUT
   
   deploy_infraestructure:
     
