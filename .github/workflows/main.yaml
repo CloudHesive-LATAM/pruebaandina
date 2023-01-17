@@ -1,0 +1,121 @@
+name: forecast-iac
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+on:
+  
+  push:
+    branches: 
+      - 'develop'
+      - 'qa'
+  
+  workflow_dispatch:
+
+jobs:
+  
+  setup-stage:
+    outputs:
+      env-name: ${{ steps.env-name.outputs.env }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Environment Name
+        id: env-name
+        run: echo "::set-output name=env::${{ github.ref_name }}"
+  
+  deploy_infraestructure:
+    
+    needs: [setup-stage]
+    #needs: sonarcloud#
+    name: deploy infraestructure
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ needs.setup-stage.outputs.env-name }}
+    steps:
+    
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          awsbackup:
+            - 'cfns/awsbackup.yaml'
+          s3buckets:
+            - 'cfns/s3buckets.yaml'
+          sns-alarms:
+            - added|modified: 'cfns/sns-alarms.yaml'
+          vpcflowlogs:
+            - 'cfns/vpcflowlogs.yaml'
+    
+    - id: install-aws-cli
+      uses: unfor19/install-aws-cli-action@v1.0.3
+      with:
+        version: 2    
+        verbose: false 
+        arch: amd64    
+        rootdir: ""    
+        workdir: ""    
+    - run: aws --version 
+         
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        role-session-name: samplerolesession
+        aws-region: us-east-1
+
+    - name: Deploy Infraestructure - VPC Flow logs
+      if: steps.filter.outputs.vpcflowlogs == 'true'
+      run: |
+       dst_branch=${GITHUB_REF_NAME}
+       echo $dst_branch
+       aws cloudformation deploy \
+        --stack-name vpcflowlogs \
+        --template-file cfns/vpcflowlogs.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
+
+    # - name: Deploy Infraestructure - IAM Power User
+    #   run: |
+    #    aws cloudformation deploy \
+    #     --stack-name policy-poweruser \
+    #     --template-file cfns/poweruser-policy.yaml --capabilities CAPABILITY_NAMED_IAM
+
+    - name: Deploy Infraestructure - S3 Buckets
+      if: steps.filter.outputs.s3buckets == 'true'
+      run: |
+       dst_branch=${GITHUB_REF_NAME}
+       
+       aws cloudformation deploy \
+        --stack-name S3BucketsForecastdataprocessed \
+        --template-file cfns/s3buckets.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
+
+    # - name: Deploy Infraestructure - SageMaker Instance
+    #   run: |
+    #    dst_branch=${GITHUB_REF_NAME}
+  
+    #    aws cloudformation deploy \
+    #     --stack-name SageMaker-Instance \
+    #     --template-file cfns/sagemaker-instance.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
+
+    - name: Deploy Infraestructure - SNS Topic 
+      if: steps.filter.outputs.sns-alarms == 'true'
+      run: |
+       dst_branch=${GITHUB_REF_NAME}
+  
+       aws cloudformation deploy \
+        --stack-name SNSTopic-Alarm \
+        --template-file cfns/sns-alarms.yaml --parameter-overrides file://$dst_branch-parameters.json
+
+    - name: Deploy Infraestructure - AWS Backup
+      
+      if: steps.filter.outputs.awsbackup == 'true'
+      run: |
+       dst_branch=${GITHUB_REF_NAME}
+
+       aws cloudformation deploy \
+        --stack-name AWSBackup \
+        --template-file cfns/awsbackup.yaml --capabilities CAPABILITY_IAM --parameter-overrides file://$dst_branch-parameters.json

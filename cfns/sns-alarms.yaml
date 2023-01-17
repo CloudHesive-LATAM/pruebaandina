@@ -1,0 +1,44 @@
+#### TEMPLATE FORMAT VERSION #####################################################
+AWSTemplateFormatVersion: '2010-09-09'
+##################################################################################
+
+#### DESCRIPTION #################################################################
+Description: Template to create SNS for Alarms or Errors
+##################################################################################
+
+#### PARAMETERS ##################################################################
+Parameters:
+  #### PARAMETERS > TAGS #########################################################
+  ProjectName:
+    Type: String
+    Description: 'Nombre del Proyecto'
+  ################################################################################  
+
+#### PARAMETERS > ARN KEY  #########################################################
+  # ArnKeySNSTopic:
+  #   Type: String
+  #   Description: 'ARN Key of SNS topic'
+  ################################################################################
+
+#### RESOURCES ###################################################################
+Resources:
+  SNSTopicS3: 
+    Type: AWS::SNS::Topic
+    Properties: 
+      DisplayName: "SNS-Alertas-Mail"
+      # KmsMasterKeyId: !Ref ArnKeySNSTopic 
+      Subscription: 
+        - Endpoint: "matias.palmero@cloudhesive.com"
+          Protocol: "email"
+      TopicName: Forecast-SNS
+      Tags:
+        - Key: Proyecto
+          Value: !Ref ProjectName
+  ################################################################################  
+
+#### OUTPUTS ###################################################################
+# Outputs: 
+#   SNSTopicS3Arn: 
+#     Description: Arn of Created SNS Topic
+#     Value: !Ref SNSTopicS3
+  ################################################################################

@@ -1,0 +1,35 @@
+[
+  {
+       "ParameterKey": "VPCID",
+       "ParameterValue": "vpc-0ecce014e6d6678e5"
+   },
+   {
+       "ParameterKey": "ProjectName", 
+       "ParameterValue": "Forecast"
+   },
+   {
+       "ParameterKey": "RetentionInDays", 
+       "ParameterValue": "150"
+   },
+   {
+       "ParameterKey": "BucketNameData",
+       "ParameterValue": "ch-925357467310-data-develop"
+   },
+   {
+       "ParameterKey": "BucketNameProcessed",
+       "ParameterValue": "ch-925357467310-processed-develop"
+   },
+
+   {
+        "ParameterKey": "SubnetID1",
+        "ParameterValue": "subnet-0ff12bfbe7368604c"
+   },
+   {
+         "ParameterKey": "BucketNameLogging",
+         "ParameterValue": "ch-925357467310-logs-dev"
+   },
+   {
+         "ParameterKey": "Environment",
+         "ParameterValue": "develop"
+   }
+]
