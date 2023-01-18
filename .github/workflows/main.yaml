@@ -20,10 +20,10 @@ jobs:
     #   env-name: ${{ steps.env-name.outputs.env }}
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Environment Name
-        id: env-name
+      - name: Extract branch name
+        id: extract_branch
         #run: echo "::set-output name=env::${{ github.ref_name }}"
-        run: echo "env=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        run: echo "${GITHUB_REF#refs/heads/}"
   
   deploy_infraestructure:
     
@@ -32,7 +32,7 @@ jobs:
     name: deploy infraestructure
     runs-on: ubuntu-latest
     environment: 
-      name: ${{ needs.setup-stage.outputs.env }}
+      name: ${{ needs.setup-stage.outputs.extract_branch }}
     steps:
     
     - name: Checkout Code
