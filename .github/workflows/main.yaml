@@ -1,8 +1,8 @@
 name: forecast-iac
 
 permissions:
-  id-token: write # This is required for requesting the JWToken
-  contents: read  # This is required for actions/checkout
+  id-token: write 
+  contents: read  
 
 on:
   
@@ -20,20 +20,20 @@ jobs:
       env-name: ${{ steps.env-name.outputs.env }}
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Environment Name
-        id: env-name
-        run: echo "::set-output name=env::${{ github.ref_name }}"
+    
+    - name: Extract branch name
+      id: env-name
+      run: echo "env=${{ github.ref_name }}" >> $GITHUB_OUTPUT
   
   deploy_infraestructure:
     
     needs: [setup-stage]
-    #needs: sonarcloud#
     name: deploy infraestructure
     runs-on: ubuntu-latest
     environment: 
       name: ${{ needs.setup-stage.outputs.env-name }}
     steps:
-    
+ 
     - name: Checkout Code
       uses: actions/checkout@v2
       with:
@@ -79,11 +79,6 @@ jobs:
         --stack-name vpcflowlogs \
         --template-file cfns/vpcflowlogs.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
-    # - name: Deploy Infraestructure - IAM Power User
-    #   run: |
-    #    aws cloudformation deploy \
-    #     --stack-name policy-poweruser \
-    #     --template-file cfns/poweruser-policy.yaml --capabilities CAPABILITY_NAMED_IAM
 
     - name: Deploy Infraestructure - S3 Buckets
       if: steps.filter.outputs.s3buckets == 'true'
@@ -94,13 +89,6 @@ jobs:
         --stack-name S3BucketsForecastdataprocessed \
         --template-file cfns/s3buckets.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
-    # - name: Deploy Infraestructure - SageMaker Instance
-    #   run: |
-    #    dst_branch=${GITHUB_REF_NAME}
-  
-    #    aws cloudformation deploy \
-    #     --stack-name SageMaker-Instance \
-    #     --template-file cfns/sagemaker-instance.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
     - name: Deploy Infraestructure - SNS Topic 
       if: steps.filter.outputs.sns-alarms == 'true'
