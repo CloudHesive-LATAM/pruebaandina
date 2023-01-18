@@ -33,7 +33,7 @@ jobs:
     name: deploy infraestructure
     runs-on: ubuntu-latest
     environment: 
-      name: ${{ BRANCH_NAME }}
+      name: $BRANCH_NAME
     steps:
     
     - name: Checkout Code
