@@ -16,14 +16,14 @@ on:
 jobs:
   
   setup-stage:
-    outputs:
-      env-name: ${{ steps.env-name.outputs.env }}
+    # outputs:
+    #   env-name: ${{ steps.env-name.outputs.env }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Environment Name
         id: env-name
         #run: echo "::set-output name=env::${{ github.ref_name }}"
-        run: echo "name=env"::${{ github.ref_name }} >> $GITHUB_OUTPUT
+        run: echo "env=${{ github.ref_name }}" >> $GITHUB_OUTPUT
   
   deploy_infraestructure:
     
@@ -32,7 +32,7 @@ jobs:
     name: deploy infraestructure
     runs-on: ubuntu-latest
     environment: 
-      name: ${{ needs.setup-stage.outputs.env-name }}
+      name: ${{ needs.setup-stage.outputs.env }}
     steps:
     
     - name: Checkout Code
