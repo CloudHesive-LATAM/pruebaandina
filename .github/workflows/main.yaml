@@ -40,6 +40,7 @@ jobs:
         fetch-depth: 0
 
     - uses: dorny/paths-filter@v2
+      name: filter-files
       id: filter
       with:
         base: ${{ github.ref }}
@@ -52,8 +53,12 @@ jobs:
             - added|modified: 'cfns/sns-alarms.yaml'
           vpcflowlogs:
             - 'cfns/vpcflowlogs.yaml'
+          develop-parameters:
+            - 'develop-parameters.json'
+            
     
-    - id: install-aws-cli
+    - name: aws-cli-installation
+      id: install-aws-cli
       uses: unfor19/install-aws-cli-action@v1.0.3
       with:
         version: 2    
