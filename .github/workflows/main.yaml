@@ -71,16 +71,14 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws.session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        role-session-name: samplerolesession
         aws-region: us-east-1
 
     - name: Python test
       run: |
        python -m pip install boto3
-       ls
+       python3 scripts/deploy.py
        
     # - name: Deploy Infraestructure - VPC Flow logs
     #   if: steps.filter.outputs.vpcflowlogs == 'true'
