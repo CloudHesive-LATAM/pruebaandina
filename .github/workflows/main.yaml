@@ -75,41 +75,46 @@ jobs:
         role-session-name: samplerolesession
         aws-region: us-east-1
 
-    - name: Deploy Infraestructure - VPC Flow logs
-      if: steps.filter.outputs.vpcflowlogs == 'true'
+    - name: Python test
       run: |
-       dst_branch=${GITHUB_REF_NAME}
-       echo $dst_branch
-       aws cloudformation deploy \
-        --stack-name vpcflowlogs \
-        --template-file cfns/vpcflowlogs.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
-
-
-    - name: Deploy Infraestructure - S3 Buckets
-      if: steps.filter.outputs.s3buckets == 'true'
-      run: |
-       dst_branch=${GITHUB_REF_NAME}
+       python -m pip install boto3
+       ls
        
-       aws cloudformation deploy \
-        --stack-name S3BucketsForecastdataprocessed \
-        --template-file cfns/s3buckets.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
+    # - name: Deploy Infraestructure - VPC Flow logs
+    #   if: steps.filter.outputs.vpcflowlogs == 'true'
+    #   run: |
+    #    dst_branch=${GITHUB_REF_NAME}
+    #    echo $dst_branch
+    #    aws cloudformation deploy \
+    #     --stack-name vpcflowlogs \
+    #     --template-file cfns/vpcflowlogs.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
 
-    - name: Deploy Infraestructure - SNS Topic 
-      if: steps.filter.outputs.sns-alarms == 'true'
-      run: |
-       dst_branch=${GITHUB_REF_NAME}
+    # - name: Deploy Infraestructure - S3 Buckets
+    #   if: steps.filter.outputs.s3buckets == 'true'
+    #   run: |
+    #    dst_branch=${GITHUB_REF_NAME}
+       
+    #    aws cloudformation deploy \
+    #     --stack-name S3BucketsForecastdataprocessed \
+    #     --template-file cfns/s3buckets.yaml --parameter-overrides file://$dst_branch-parameters.json --capabilities CAPABILITY_NAMED_IAM
+
+
+    # - name: Deploy Infraestructure - SNS Topic 
+    #   if: steps.filter.outputs.sns-alarms == 'true'
+    #   run: |
+    #    dst_branch=${GITHUB_REF_NAME}
   
-       aws cloudformation deploy \
-        --stack-name SNSTopic-Alarm \
-        --template-file cfns/sns-alarms.yaml --parameter-overrides file://$dst_branch-parameters.json
+    #    aws cloudformation deploy \
+    #     --stack-name SNSTopic-Alarm \
+    #     --template-file cfns/sns-alarms.yaml --parameter-overrides file://$dst_branch-parameters.json
 
-    - name: Deploy Infraestructure - AWS Backup
+    # - name: Deploy Infraestructure - AWS Backup
       
-      if: steps.filter.outputs.awsbackup == 'true'
-      run: |
-       dst_branch=${GITHUB_REF_NAME}
+    #   if: steps.filter.outputs.awsbackup == 'true'
+    #   run: |
+    #    dst_branch=${GITHUB_REF_NAME}
 
-       aws cloudformation deploy \
-        --stack-name AWSBackup \
-        --template-file cfns/awsbackup.yaml --capabilities CAPABILITY_IAM --parameter-overrides file://$dst_branch-parameters.json
+    #    aws cloudformation deploy \
+    #     --stack-name AWSBackup \
+    #     --template-file cfns/awsbackup.yaml --capabilities CAPABILITY_IAM --parameter-overrides file://$dst_branch-parameters.json
