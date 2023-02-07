@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ProjectTemplateBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: !Join ['-', ['cloudhesive', !Ref 'AWS::AccountId', 'projecttemplate-prueba']]
+        AccessControl: Private
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+        VersioningConfiguration:
+          Status: Enabled 
+      UpdateReplacePolicy: Retain
+      DeletionPolicy: Delete
