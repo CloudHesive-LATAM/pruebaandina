@@ -40,8 +40,12 @@ def main(name_stack):
             }
         )
     
+    elif stack_status_parsed == "ROLLBACK_IN_PROGRESS" or stack_status_parsed == "ROLLBACK_COMPLETE":
+        sys.exit(f"Stack {name_stack} failed to create.")
+    
     else:
         print("Stack does not need to be created or updated")
+
 
 def get_stack_status(name_stack):
     
@@ -49,7 +53,7 @@ def get_stack_status(name_stack):
     StackName=f'{name_stack}'
     )
     stack_status_parsed = stack_status['Stacks'][0]['StackStatus']
-    print(stack_status_parsed)
+    #print(stack_status_parsed)
     return stack_status_parsed
 
 main(name_stack)
