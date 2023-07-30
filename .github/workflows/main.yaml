@@ -43,7 +43,7 @@ jobs:
       name: filter-files
       id: filter
       with:
-        #base: ${{ github.ref }}
+        base: ${{ github.ref }}
         filters: |
           awsbackup:
             - 'cfns/awsbackup.yaml'
