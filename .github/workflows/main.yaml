@@ -39,21 +39,11 @@ jobs:
       with:
         fetch-depth: 0
         
-    - name: Check if branch has previous commits
-      id: check-commits
-      run: |
-          n=$(git rev-list --count ${{ github.event.before }}..${{ github.event.after }})
-          echo "Commits since branch creation: $n"
-          if [ "$n" -eq "0" ]; then
-            echo "::set-output name=has_commits::false"
-          else
-            echo "::set-output name=has_commits::true"
-          fi
+  
 
 
     - uses: dorny/paths-filter@v2
       name: Apply paths-filter only if there are commits
-      if: ${{ steps.check-commits.outputs.has_commits == 'true' }}
       id: filter
       with:
         base: ${{ github.ref }}
