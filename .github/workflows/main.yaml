@@ -81,20 +81,20 @@ jobs:
     #     --stack-name project-template \
     #     --template-file cfns/project-template.yaml --capabilities CAPABILITY_NAMED_IAM
     
-    - name: Upload Data Prueba CFN Template
-      env:
-        Environment: ${{secrets.Environment}}
-        AWSAccountID: ${{secrets.AWSAccountID}}
-      run: |
-       aws s3 cp cfns/pruebas3.yaml s3://cloudhesive-$AWSAccountID-projecttemplate-prueba/prueba.yaml
+    #- name: Upload Data Prueba CFN Template
+    #  env:
+    #    Environment: ${{secrets.Environment}}
+    #    AWSAccountID: ${{secrets.AWSAccountID}}
+    #  run: |
+    #   aws s3 cp cfns/pruebas3.yaml s3://cloudhesive-$AWSAccountID-projecttemplate-prueba/prueba.yaml
     
     - name: Deploy Infraestructure - Prueba
       env: 
         Environment: ${{secrets.Environment}}
         AWSAccountID: ${{secrets.AWSAccountID}}    
       run: |
-       python -m pip install boto3
        cfnstack=$(aws cloudformation update-stack --stack-name prueba-coca --template-url https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml || aws cloudformation create-stack --stack-name prueba-coca --template-url https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml)
+       python -m pip install boto3
        python3 scripts/deploy.py prueba-coca
 
     # - name: Python test
