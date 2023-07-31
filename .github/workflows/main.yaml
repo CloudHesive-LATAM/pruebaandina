@@ -105,7 +105,7 @@ jobs:
 
        stack_status=$(aws cloudformation describe-stacks --stack-name "$stack_name" --query "Stacks[0].StackStatus" --output text)
        if [[ $stack_status != "CREATE_COMPLETE" && $stack_status != "UPDATE_COMPLETE" ]]; then
-          echo "Stack deployment failed. Current status: $stack_status"
+          echo "Current status: $stack_status"
           exit 1
        else
           echo "Current status: $stack_status."
