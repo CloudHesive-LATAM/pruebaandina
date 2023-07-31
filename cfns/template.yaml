@@ -6,10 +6,14 @@ Parameters:
   InstanceType:
     Type: String
     Description: Tipo de Instancia
+  Monitoring:
+    Type: Boolean
+    Description: Wether the ec2 instance will have detailed monitoring.
 
 Resources:
   MyEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
+      Monitoring: !Ref Monitoring
       ImageId: ami-0476f2ee0a10d89bc

@@ -80,13 +80,10 @@ jobs:
       env: 
         Environment: ${{secrets.Environment}}
         AWSAccountID: ${{secrets.AWSAccountID}}
-        # stack_name: prueba-coca
-        # template_url: https://cfnprueba.s3.amazonaws.com/template.txt 
         InstanceType: ${{secrets.InstanceType}}    
-      run: |
-       ls
+      run: |  
        chmod +x ./ghactions-scripts/deploy.sh
-       ./ghactions-scripts/deploy.sh prueba-coca https://cfnprueba.s3.amazonaws.com/template.txt ParameterKey=InstanceType,ParameterValue=$InstanceType
+       ./ghactions-scripts/deploy.sh prueba-coca https://cfnprueba.s3.amazonaws.com/template.txt ParameterKey=InstanceType,ParameterValue=$InstanceType ParameterKey=Monitoring,ParameterValue=$Monitoring
 
       #  if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" --parameters ParameterKey=InstanceType,ParameterValue=$InstanceType 2>&1); then
       #     if [[ $update_output == *"No updates are to be performed."* ]]; then
