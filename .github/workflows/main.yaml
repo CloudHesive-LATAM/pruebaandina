@@ -100,13 +100,13 @@ jobs:
         Environment: ${{secrets.Environment}}
         AWSAccountID: ${{secrets.AWSAccountID}}    
       run: |
-       stack_name=[prueba-coca]
+       stack_name="prueba-coca"
        template_url="https://cfnprueba.s3.amazonaws.com/template.txt"
 
        if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" 2>&1); then
           if [[ $update_output == *"No updates are to be performed."* ]]; then
             echo "No updates needed for the stack."
-          elif [[ $update_output == *"An error occurred (ValidationError) when calling the UpdateStack operation: Stack with id $stack_name does not exist"* ]]; then
+          elif [[ $update_output == *"An error occurred (ValidationError) when calling the UpdateStack operation: Stack with id [prueba-coca] does not exist"* ]]; then
             aws cloudformation create-stack --stack-name "$stack_name" --template-url "$template_url"
           else
             echo "Update failed: $update_output"
