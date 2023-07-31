@@ -42,25 +42,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-        
-
-    - uses: dorny/paths-filter@v2
-      name: Apply paths-filter only if there are commits
-      id: filter
-      with:
-        base: ${{ github.ref }}
-        filters: |
-          awsbackup:
-            - 'cfns/awsbackup.yaml'
-          s3buckets:
-            - 'cfns/s3buckets.yaml'
-          sns-alarms:
-            - added|modified: 'cfns/sns-alarms.yaml'
-          vpcflowlogs:
-            - 'cfns/vpcflowlogs.yaml'
-          develop-parameters:
-            - 'develop-parameters.json'
-            
     
     - name: aws-cli-installation
       id: install-aws-cli
@@ -89,7 +70,7 @@ jobs:
        stack_name="prueba-coca"
        template_url="https://cfnprueba.s3.amazonaws.com/template.txt"
 
-       if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" --parameters ParameterKey=InstanceType, ParameterValue=$InstanceType 2>&1); then
+       if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" --parameters ParameterKey=InstanceType,ParameterValue=$InstanceType 2>&1); then
           if [[ $update_output == *"No updates are to be performed."* ]]; then
             echo "No updates needed for the stack."
           elif [[ $update_output == *"An error occurred (ValidationError) when calling the UpdateStack operation: Stack ["$stack_name"] does not exist"* ]]; then
@@ -118,6 +99,23 @@ jobs:
        #cfnstack=$(aws cloudformation update-stack --stack-name prueba-coca --no-fail-on-empty-changeset --template-url https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml || aws cloudformation create-stack --stack-name prueba-coca --template-url https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml)
        #python -m pip install boto3
        #python3 scripts/deploy.py prueba-coca
+
+    # - uses: dorny/paths-filter@v2
+    #   name: Apply paths-filter only if there are commits
+    #   id: filter
+    #   with:
+    #     base: ${{ github.ref }}
+    #     filters: |
+    #       awsbackup:
+    #         - 'cfns/awsbackup.yaml'
+    #       s3buckets:
+    #         - 'cfns/s3buckets.yaml'
+    #       sns-alarms:
+    #         - added|modified: 'cfns/sns-alarms.yaml'
+    #       vpcflowlogs:
+    #         - 'cfns/vpcflowlogs.yaml'
+    #       develop-parameters:
+    #         - 'develop-parameters.json'
 
     # - name: Deploy Infraestructure - project-template
     #   run: |
