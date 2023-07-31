@@ -84,7 +84,7 @@ jobs:
         Monitoring: ${{secrets.Monitoring}}    
       run: |  
        chmod +x ./ghactions-scripts/deploy.sh
-       PARAMETERS="{ \"InstanceType\": \"$InstanceType\", \"Monitoring\": \"$Monitoring\" }"
+       PARAMETERS="{\"ParameterKey\": \"InstanceType\", \"ParameterValue\": \"$InstanceType\"},{\"ParameterKey\": \"Monitoring\", \"ParameterValue\": \"$Monitoring\"}"
        ./ghactions-scripts/deploy.sh prueba-coca https://cfnprueba.s3.amazonaws.com/template.txt "$PARAMETERS"
 
       #  if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" --parameters ParameterKey=InstanceType,ParameterValue=$InstanceType 2>&1); then
