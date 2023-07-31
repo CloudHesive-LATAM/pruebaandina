@@ -103,17 +103,17 @@ jobs:
        stack_name="prueba-coca"
        template_url="https://cfnprueba.s3.amazonaws.com/template.txt"
 
-       if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" 2>&1); then        if ! aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url"; then
-        if [[ $update_output == *"No updates are to be performed."* ]]; then
-          echo "No updates needed for the stack."
-        elif [[ $update_output == *"An error occurred (ValidationError) when calling the UpdateStack operation: Stack with id $stack_name does not exist"* ]]; then
-          aws cloudformation create-stack --stack-name "$stack_name" --template-url "$template_url"
-        else
-          echo "Update failed: $update_output"
-          exit 1
-        fi
+       if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" 2>&1); then
+          if [[ $update_output == *"No updates are to be performed."* ]]; then
+            echo "No updates needed for the stack."
+          elif [[ $update_output == *"An error occurred (ValidationError) when calling the UpdateStack operation: Stack with id $stack_name does not exist"* ]]; then
+            aws cloudformation create-stack --stack-name "$stack_name" --template-url "$template_url"
+          else
+            echo "Update failed: $update_output"
+            exit 1
+          fi
        else
-        echo "Stack update was executed. Take a look at the cfn stack in the destination account"
+          echo "Stack update was executed. Take a look at the CloudFormation stack in the destination account."
        fi
     
        
