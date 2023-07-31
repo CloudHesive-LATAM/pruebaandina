@@ -80,7 +80,8 @@ jobs:
       env: 
         Environment: ${{secrets.Environment}}
         AWSAccountID: ${{secrets.AWSAccountID}}
-        InstanceType: ${{secrets.InstanceType}}    
+        InstanceType: ${{secrets.InstanceType}}
+        Monitoring: ${{secrets.Monitoring}}    
       run: |  
        chmod +x ./ghactions-scripts/deploy.sh
        PARAMETERS="{\"InstanceType\": \"$InstanceType\", \"Monitoring\": \"$Monitoring\"}"
