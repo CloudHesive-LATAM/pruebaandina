@@ -99,12 +99,12 @@ jobs:
             exit 1
           fi
        else
-          echo "Stack update was executed."
+          echo "Stack update was executed. Update in progress..."
           aws cloudformation wait stack-update-complete --stack-name "$stack_name"
        fi
 
        stack_status=$(aws cloudformation describe-stacks --stack-name "$stack_name" --query "Stacks[0].StackStatus" --output text)
-       if [[ $stack_status != "CREATE_COMPLETE" ]]; then
+       if [[ $stack_status != "CREATE_COMPLETE" && $stack_status != "UPDATE_COMPLETE" ]]; then
           echo "Stack deployment failed. Current status: $stack_status"
           exit 1
        else
