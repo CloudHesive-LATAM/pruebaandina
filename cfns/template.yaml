@@ -7,7 +7,7 @@ Parameters:
     Type: String
     Description: Tipo de Instancia
   Monitoring:
-    Type: Boolean
+    Type: String
     Description: Wether the ec2 instance will have detailed monitoring.
 
 Resources:
