@@ -72,12 +72,11 @@ jobs:
         workdir: ""    
     - run: aws --version 
          
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-        role-session-name: samplerolesession
-        aws-region: us-east-1
+        RoleToAssume: ${{ vars.AWS_ROLE_DEV }}
+        aws-region: ${{ env.AWS_REGION }}
 
     # - name: Deploy Infraestructure - project-template
     #   run: |
@@ -98,21 +97,21 @@ jobs:
         AWSAccountID: ${{secrets.AWSAccountID}}    
       run: |
        stack_name="prueba-coca"
-       template_url="https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml"
+       template_url="https://cfnprueba.s3.amazonaws.com/template.txt"
 
-       if aws cloudformation describe-stacks --stack-name "$stack_name" >/dev/null 2>&1; then
-
-        if ! aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url"; then
-   
-         echo "Update failed, continuing with create-stack..."
-        
+       if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" 2>&1); then        if ! aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url"; then
+        if [[ $update_output == *"No updates are to be performed."* ]]; then
+          echo "No updates needed for the stack."
+        elif [[ $update_output == *"An error occurred (ValidationError) when calling the UpdateStack operation: Stack with id $stack_name does not exist"* ]]; then
+          aws cloudformation create-stack --stack-name "$stack_name" --template-url "$template_url"
+        else
+          echo "Update failed: $update_output"
+          exit 1
         fi
-       
        else
-      
-        aws cloudformation create-stack --stack-name "$stack_name" --template-url "$template_url"
-       
+        echo "Stack update was executed. Take a look at the cfn stack in the destination account"
        fi
+    
        
        #cfnstack=$(aws cloudformation update-stack --stack-name prueba-coca --no-fail-on-empty-changeset --template-url https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml || aws cloudformation create-stack --stack-name prueba-coca --template-url https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml)
        #python -m pip install boto3
