@@ -43,8 +43,6 @@ jobs:
       with:
         fetch-depth: 0
         
-  
-
 
     - uses: dorny/paths-filter@v2
       name: Apply paths-filter only if there are commits
@@ -81,19 +79,6 @@ jobs:
         role-to-assume: ${{ vars.AWS_ROLE_DEV }}
         aws-region: ${{ env.AWS_REGION }}
         role-session-name: GitHub_to_AWS_via_FederatedOIDC
-
-    # - name: Deploy Infraestructure - project-template
-    #   run: |
-    #    aws cloudformation deploy \
-    #     --stack-name project-template \
-    #     --template-file cfns/project-template.yaml --capabilities CAPABILITY_NAMED_IAM
-    
-    #- name: Upload Data Prueba CFN Template
-    #  env:
-    #    Environment: ${{secrets.Environment}}
-    #    AWSAccountID: ${{secrets.AWSAccountID}}
-    #  run: |
-    #   aws s3 cp cfns/pruebas3.yaml s3://cloudhesive-$AWSAccountID-projecttemplate-prueba/prueba.yaml
     
     - name: Deploy Infraestructure - Prueba
       env: 
@@ -108,18 +93,42 @@ jobs:
             echo "No updates needed for the stack."
           elif [[ $update_output == *"An error occurred (ValidationError) when calling the UpdateStack operation: Stack [prueba-coca] does not exist"* ]]; then
             aws cloudformation create-stack --stack-name "$stack_name" --template-url "$template_url"
+            aws cloudformation wait stack-create-complete --stack-name "$stack_name"
           else
             echo "Update failed: $update_output"
             exit 1
           fi
        else
-          echo "Stack update was executed. Take a look at the CloudFormation stack in the destination account."
+          echo "Stack update was executed."
+          aws cloudformation wait stack-update-complete --stack-name "$stack_name"
        fi
+
+       stack_status=$(aws cloudformation describe-stacks --stack-name "$stack_name" --query "Stacks[0].StackStatus" --output text)
+       if [[ $stack_status != "CREATE_COMPLETE" ]]; then
+          echo "Stack deployment failed. Current status: $stack_status"
+          exit 1
+       else
+          echo "Stack deployment was successful."
+       fi
+
     
        
        #cfnstack=$(aws cloudformation update-stack --stack-name prueba-coca --no-fail-on-empty-changeset --template-url https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml || aws cloudformation create-stack --stack-name prueba-coca --template-url https://cloudhesive-$AWSAccountID-projecttemplate-prueba.s3.amazonaws.com/prueba.yaml)
        #python -m pip install boto3
        #python3 scripts/deploy.py prueba-coca
+
+    # - name: Deploy Infraestructure - project-template
+    #   run: |
+    #    aws cloudformation deploy \
+    #     --stack-name project-template \
+    #     --template-file cfns/project-template.yaml --capabilities CAPABILITY_NAMED_IAM
+    
+    #- name: Upload Data Prueba CFN Template
+    #  env:
+    #    Environment: ${{secrets.Environment}}
+    #    AWSAccountID: ${{secrets.AWSAccountID}}
+    #  run: |
+    #   aws s3 cp cfns/pruebas3.yaml s3://cloudhesive-$AWSAccountID-projecttemplate-prueba/prueba.yaml
 
     # - name: Python test
     #   run: |
