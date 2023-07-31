@@ -100,7 +100,7 @@ jobs:
         Environment: ${{secrets.Environment}}
         AWSAccountID: ${{secrets.AWSAccountID}}    
       run: |
-       stack_name="prueba-coca"
+       stack_name=[prueba-coca]
        template_url="https://cfnprueba.s3.amazonaws.com/template.txt"
 
        if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" 2>&1); then
