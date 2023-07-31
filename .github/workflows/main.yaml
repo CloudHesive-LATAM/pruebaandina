@@ -84,8 +84,16 @@ jobs:
         Monitoring: ${{secrets.Monitoring}}    
       run: |  
        chmod +x ./ghactions-scripts/deploy.sh
-       PARAMETERS="[ {\"ParameterKey\": \"InstanceType\", \"ParameterValue\": \"$InstanceType\"}, {\"ParameterKey\": \"Monitoring\", \"ParameterValue\": \"$Monitoring\"} ]"
-       ./ghactions-scripts/deploy.sh prueba-coca https://cfnprueba.s3.amazonaws.com/template.txt "$PARAMETERS"
+
+       PARAMETERS=(
+            "ParameterKey=InstanceType,ParameterValue=${InstanceType}"
+            "ParameterKey=Monitoring,ParameterValue=${Monitoring}"
+          )
+
+          # Convert the array to a JSON string
+          PARAMETERS_JSON=$(printf '{"%s"}' "${PARAMETERS[@]}")
+
+       ./ghactions-scripts/deploy.sh prueba-coca https://cfnprueba.s3.amazonaws.com/template.txt "$PARAMETERS_JSON"
 
       #  if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" --parameters ParameterKey=InstanceType,ParameterValue=$InstanceType 2>&1); then
       #     if [[ $update_output == *"No updates are to be performed."* ]]; then
