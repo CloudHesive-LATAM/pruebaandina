@@ -5,17 +5,13 @@ template_url="$2"
 other_parameters="$3"
 
 # Parse the other_parameters string to extract individual parameters and values
-IFS=" " read -ra params_array <<< "$other_parameters"
-for param in "${params_array[@]}"; do
-  # Extract the ParameterKey and ParameterValue
-  if [[ "$param" == ParameterKey=* ]]; then
-    parameter_key="${param#*=}"
-  elif [[ "$param" == ParameterValue=* ]]; then
-    parameter_value="${param#*=}"
-    echo "Received parameter: $parameter_key=$parameter_value"
-    # Use the parameter as needed in your script logic...
-  fi
-done
+# Parse the JSON string to extract individual parameters and values
+while IFS='=' read -r key value; do
+  parameter_key=$(echo "$key" | tr -d '"{},')
+  parameter_value=$(echo "$value" | tr -d '"{},')
+  echo "Received parameter: $parameter_key=$parameter_value"
+  # Use the parameter as needed in your script logic...
+done < <(echo "$other_parameters" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
 
 if ! update_output=$(aws cloudformation update-stack --stack-name "$stack_name" --template-url "$template_url" --parameters "$parameters" 2>&1); then
   if [[ $update_output == *"No updates are to be performed."* ]]; then
