@@ -76,6 +76,7 @@ jobs:
        aws s3 cp cfns/template.yaml s3://cfnprueba/template.txt
     
     - name: Deploy Infraestructure - Prueba
+      # if: steps.filter.outputs.infrastructure == 'true'
       env: 
         Environment: ${{secrets.Environment}}
         AWSAccountID: ${{secrets.AWSAccountID}}
@@ -88,7 +89,7 @@ jobs:
           if [[ $update_output == *"No updates are to be performed."* ]]; then
             echo "No updates needed for the stack."
           elif [[ $update_output == *"An error occurred (ValidationError) when calling the UpdateStack operation: Stack ["$stack_name"] does not exist"* ]]; then
-            aws cloudformation create-stack --stack-name "$stack_name" --template-url "$template_url"
+            aws cloudformation create-stack --stack-name "$stack_name" --template-url "$template_url" --parameters ParameterKey=InstanceType,ParameterValue=$InstanceType
             aws cloudformation wait stack-create-complete --stack-name "$stack_name"
           else
             echo "Update failed: $update_output"
