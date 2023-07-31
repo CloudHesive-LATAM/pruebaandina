@@ -76,7 +76,7 @@ jobs:
        aws s3 cp cfns/template.yaml s3://cfnprueba/template.txt
     
     - name: Deploy Infraestructure - Prueba
-      if: steps.filter.outputs.infrastructure == 'true'
+      # if: steps.filter.outputs.infrastructure == 'true'
       env: 
         Environment: ${{secrets.Environment}}
         AWSAccountID: ${{secrets.AWSAccountID}}
