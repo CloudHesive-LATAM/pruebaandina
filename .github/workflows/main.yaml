@@ -108,7 +108,7 @@ jobs:
           echo "Stack deployment failed. Current status: $stack_status"
           exit 1
        else
-          echo "Stack deployment was successful."
+          echo "Current status: $stack_status."
        fi
 
     
