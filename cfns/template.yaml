@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: A simple CloudFormation template
+
+Parameters:
+  
+  InstanceType:
+    Type: String
+    Description: Tipo de Instancia.
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: ami-0476f2ee0a10d89bc
