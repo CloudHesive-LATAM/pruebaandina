@@ -80,6 +80,7 @@ jobs:
       with:
         RoleToAssume: ${{ vars.AWS_ROLE_DEV }}
         aws-region: ${{ env.AWS_REGION }}
+        role-session-name: GitHub_to_AWS_via_FederatedOIDC
 
     # - name: Deploy Infraestructure - project-template
     #   run: |
