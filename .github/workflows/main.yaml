@@ -68,8 +68,7 @@ jobs:
         base: ${{ github.ref }}
         filters: |
           infrastructure:
-            addedOrModified:
-              - added|modified: 'cfns/template.yaml'
+            - added|modified: 'cfns/template.yaml'
     
     - name: Upload Infrastructure CFN template
       if: steps.filter.outputs.infrastructure == 'true'
