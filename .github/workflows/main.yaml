@@ -1,4 +1,4 @@
-name: forecast-iac
+name: forecast
 
 permissions:
   id-token: write 
