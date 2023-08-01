@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudFormation template for s3 bucket for CCandina Forecast Project
+Description: CloudFormation template for s3 bucket for CCandina Forecast Project.
 #### PARAMETERS ##################################################################
 Parameters:
   
